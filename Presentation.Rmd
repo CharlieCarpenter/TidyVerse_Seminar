@@ -4,26 +4,39 @@ author: "Charlie Carpenter"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/#:~:text=The%20tidyverse%20is%20a%20coherent,being%20expanded%20by%20several%20contributors.
 
-## R Markdown
+## Introduce Tidyverse
+1. Philosophy behind it
+  a. Hal Abelson: “Programs must be written for people to read and only incidentally for machines to execute”. 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+2. Example of hard to read code and compare to easier to read tidyverse code
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+3. tidyverse is very big so we can't cover it all. 
+  a. everyone is probably already familiar with `ggplot2`
 
-```{r cars}
-summary(cars)
-```
+## Introduce the Pipe
+We will use it throughout
 
-## Including Plots
+## Examples of base functions and tidyverse
+1. subset vs. filter
+3. merge vs. left_, right_, and full_join
+2. tapply vs. group_by + summarize or mutate
+4. Others?
 
-You can also embed plots, for example:
+## Syntax
+Combine large data opperation into one single flow vs. a multistep opperation with nested () or multiple names
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+Phil Karlton - "There are only two hard things in Computer Science: cache invalidation and naming things."
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Advantages
+
+
+## Disadvantages
+1. Still a 'work in progress'
+  a. melt/cast -> gather/spread -> pivot_longer/pivot_wider
+
+2. "Rectangular" data structure isn't adopted by everyone. Bioconductor doesn't play very well with tidyverse for this reason. tidyverse doesn't really work with S4 objects
+
+
+
