@@ -20,9 +20,11 @@ We will use it throughout
 
 ## Examples of base functions and tidyverse
 1. subset vs. filter
-3. merge vs. left_, right_, and full_join
-2. tapply vs. group_by + summarize or mutate
+2. merge vs. left_, right_, and full_join
+3. tapply vs. group_by + summarize or mutate
 4. Others?
+
+5. sapply and lapply vs ddply/ldply
 
 ## Syntax
 Combine large data opperation into one single flow vs. a multistep opperation with nested () or multiple names
@@ -30,7 +32,7 @@ Combine large data opperation into one single flow vs. a multistep opperation wi
 Phil Karlton - "There are only two hard things in Computer Science: cache invalidation and naming things."
 
 ## Advantages
-
+lots
 
 ## Disadvantages
 1. Still a 'work in progress'
