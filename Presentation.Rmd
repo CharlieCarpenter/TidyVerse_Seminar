@@ -6,28 +6,84 @@ output: html_document
 
 https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/#:~:text=The%20tidyverse%20is%20a%20coherent,being%20expanded%20by%20several%20contributors.
 
-## Introduce Tidyverse
-1. Philosophy behind it
-  a. Hal Abelson: “Programs must be written for people to read and only incidentally for machines to execute”. 
+```{r, include = F}
+library(tidyverse); library(magrittr)
+```
 
-2. Example of hard to read code and compare to easier to read tidyverse code
+
+## Introduction
+
+#### What is the 'tidyverse'?
+
+  The tidyverse is a collection of packages that are designed to work together to enhance any data cleaning, visualization, and analysis workflow. It is an enormous library of evolving packages and functions designed by Hadley Wickham and implemented in R. Packages in the tidyverse include `ggplot2` (visualizations), `dplyr` (data manipulation), `tidyr` (data manipulation), `readr` (data imports), `purrr` (functional programming), `tibble` (advanced data frames), `magrittr` (piping operations), `stringr` (advanced string operations), `lubridate` (advanced date operations), `forcats` (advanced factor operations), `modelr` (pipelines for modelling), `broom` (tidy model output), and many others.
+
+#### Why use the 'tidyverse'?
+
+  The tidyverse doesn't offer that many new functions. In fact, most of the common operations you would perform using the tidyverse are available through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more coherent and readable code.
+
+  Hadley often quotes famous computer scientist Hal Abelson when discussing his philosophy for tidyverse code: 
+
+> “Programs must be written for people to read 
+> and only incidentally for machines to execute”. 
+>
+> `r tufte::quote_footer('--- Hal Abelson')`
+
+  Code can easily become cumbersome to read using only `base` code,
+```{r}
+unlist(tapply(mtcars[mtcars$vs == 0, ]$mpg, mtcars[mtcars$vs == 0, ]$cyl, range))
+```
+
+or we need to create multiple objects to delineate steps.
+```{r}
+mtcars0 <- mtcars[mtcars$vs == 0, ]
+mt.ranges <- tapply(mtcars0$mpg, mtcars0$cyl, range)
+
+do.call(rbind, mt.ranges)
+```
+
+  The tidyverse provides readable code without the need to name multiple objects:
+```{r}
+mtcars %>% 
+  filter(vs == 0) %>% 
+  group_by(cyl) %>% 
+  summarise(range(mpg), .groups = 'drop')
+```
+
+## Overview
+
+The tidyverse is very big, so we won't be able to cover everything. In this presentation we will focus on *pipe* operators, *dplyr* and *tidyr* for data manipulation, *rlang* operations for programming
 
 3. tidyverse is very big so we can't cover it all. 
   a. everyone is probably already familiar with `ggplot2`
 
-## Introduce the Pipe
-We will use it throughout
+## The 'pipe' function
+  
+  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package. It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. It the object on the left and moves it to the first argument of the function on the right.
+  
+```{r}
+mtcars %>% head()
+```
+
+  This seems like an unnecessary step, but, when stringing mulitple opperations together, it becomes an essential tool to keep code readable. 
+
+  The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`.
+  
+```{r}
+mtcars %>% lm(mpg~cyl, data = .) 
+```
+
+  There are multiple piping functions available in the `magrittr` package: `%<>%`, `%T>%`, `%$%`. We won't cover these, but they each have interesting functionality that could be very helpful.
 
 ## Examples of base functions and tidyverse
 1. subset vs. filter
 2. merge vs. left_, right_, and full_join
 3. tapply vs. group_by + summarize or mutate
-4. Others?
+4. spread, gather / pivots_
 
 5. sapply and lapply vs ddply/ldply
 
 ## Syntax
-Combine large data opperation into one single flow vs. a multistep opperation with nested () or multiple names
+Combine large data operation into one single flow vs. a multistage operation with nested () or multiple names
 
 Phil Karlton - "There are only two hard things in Computer Science: cache invalidation and naming things."
 
