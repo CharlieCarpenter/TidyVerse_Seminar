@@ -19,7 +19,7 @@ library(tidyverse); library(magrittr)
 
 #### Why use the 'tidyverse'?
 
-  The tidyverse doesn't offer that many new functions. In fact, most of the common operations you would perform using the tidyverse are available through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more coherent and readable code.
+  The tidyverse doesn't offer that many new functions. In fact, most of the operations you would perform using the tidyverse are available through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more coherent and readable code.
 
   Hadley often quotes famous computer scientist Hal Abelson when discussing his philosophy for tidyverse code: 
 
@@ -56,15 +56,15 @@ The tidyverse is very big, so we won't be able to cover everything. In this pres
 3. tidyverse is very big so we can't cover it all. 
   a. everyone is probably already familiar with `ggplot2`
 
+## Plotting
+
 ## The 'pipe' function
   
-  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package. It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. It the object on the left and moves it to the first argument of the function on the right.
+  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package. It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. Except instead of performing a function on two objects, tt takes the object on the left and moves it to the first argument of the function on the right.
   
 ```{r}
 mtcars %>% head()
 ```
-
-  This seems like an unnecessary step, but, when stringing mulitple opperations together, it becomes an essential tool to keep code readable. 
 
   The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`.
   
@@ -74,8 +74,163 @@ mtcars %>% lm(mpg~cyl, data = .)
 
   There are multiple piping functions available in the `magrittr` package: `%<>%`, `%T>%`, `%$%`. We won't cover these, but they each have interesting functionality that could be very helpful.
 
+  This seems like an unnecessary step, but, when stringing mulitple opperations together, it becomes an essential tool to keep code readable. The format for adding *'geoms'* to a `ggplot` was an early formulation of this idea of stringing multiple functions together through an external function.
+
 ## Examples of base functions and tidyverse
-1. subset vs. filter
+
+  As we said earlier, there aren't many things you can do with the tidyverse that you can't do with `base` R. In fact, the tidyverse is mostly built out of `base` R, like R is built out of C code.
+  
+### Extracting Variables  
+  
+#### Base Extraction
+
+  We're all with extraction functions in `base`. 
+
+```{r}
+## First column as vector
+mtcars[,1] 
+## or
+mtcars$mpg
+## or (unnecessarily)
+getElement(mtcars, 'mpg')
+```
+
+  We can also maintain the original dimension of the object using `drop = FALSE` or selecting multiple columns.
+
+```{r}
+mtcars[,1, drop = FALSE]
+```
+
+```{r}
+mtcars[,1:2]
+```
+
+#### Tidyverse Extraction
+
+```{r}
+## First column as vector
+pull(mtcars, 1)
+## or with the 'pipe'
+mtcars %>% pull(1)
+mtcars %>% pull(mpg)
+```
+  
+  We can also maintain the data.frame stucture using the `select` function from the *dplyr* package. 
+  
+```{r, eval = F}
+select(mtcars, 1)
+## or selecting multiple cols
+select(mtcars, 1,2,3)
+## equivalently
+mtcars %>% select(1:3)
+```
+
+  The `select` function also gives the user flexible and intuitive functions for selecting ranges, complements, inersections and unions, or specifying selection through regular expressions with helper functions.
+  
+```{r, eval = FALSE}
+## Selecting a vars 'mpg', 'cyl', 'disp', and 'hp'
+mtcars %>% select(mpg:hp)
+
+## Selecting using regular expression helper functions
+mtcars %>% 
+  select(starts_with('d')) ## all variables that start with 'd'
+
+mtcars %>% 
+  select(contains('a')) ## all variables with an 'a' in their name
+
+## Select unions of elements (or intersections with `&`)
+mtcars %>% 
+  select(starts_with('c') | ends_with('arb'))
+
+## Or rename variables through the `select` function
+mtcars %>% 
+  select(Miles_Per_Gal = mpg) ## new_name = original_name
+```
+
+### Subset and Filter
+
+```{r}
+subset(mtcars, disp >= mean(disp))
+```
+
+  Note that this is one of the few times that base code uses 'none standard evaluation.' This means that it captures input as '*expressions*' to be evaluated within the function's environment, i.e. we don't need to use any *extraction* functions such as `[]` or `$` within the argument. The `subset` function would look like this: `subset(mtcars, mtcars$disp >= mean(mtcars$disp))` if it worked like most `base` functions.
+
+  The tidyverse primarily opperates by capturing arguments as *expressions*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
+
+```{r}
+## Multiple filtering options. 
+## Equivalent of multiple '&' statements in subset
+mtcars %>% 
+  filter(disp >= mean(disp),
+         carb == 4,
+         vs == 0)
+```
+
+#### Subset and Extraction
+
+##### R base
+
+```{r}
+## Subset data.frame
+subset(mtcars, carb == 4, select = c(mpg, cyl, carb))
+
+## Subset to vector
+subset(mtcars, carb == 4, select = cyl, drop = TRUE)
+```
+
+##### Tidyverse
+
+```{r}
+## Subset data.frame
+mtcars %>% 
+  filter(carb == 4) %>% 
+  select(mpg, cyl, carb)
+
+## Subset to vector
+mtcars %>% 
+  filter(carb == 4) %>% 
+  pull(cyl)
+```
+
+### Merging 
+
+  First lets make some data sets to work with.
+
+```{r}
+authors <- data.frame(
+    ## I(*) : use character columns of names to get sensible sort order
+    surname = I(c("Tukey", "Venables", "Tierney", "Ripley", "McNeil")),
+    nationality = c("US", "Australia", "US", "UK", "Australia"),
+    deceased = c("yes", rep("no", 4)))
+
+## Just changing the column name (would be easier with the tidyverse!)
+authorN <- within(authors, { name <- surname; rm(surname) })
+
+## Data frame for merging
+books <- data.frame(
+    name = I(c("Tukey", "Venables", "Tierney",
+             "Ripley", "Ripley", "McNeil", "R Core")),
+    title = c("Exploratory Data Analysis",
+              "Modern Applied Statistics ...",
+              "LISP-STAT",
+              "Spatial Statistics", "Stochastic Simulation",
+              "Interactive Data Analysis",
+              "An Introduction to R"),
+    other.author = c(NA, "Ripley", NA, NA, NA, NA,
+                     "Venables & Smith"))
+```
+
+#### Base
+
+  Base offers the `merge` function that has `all._` options that act similarly to the different `*_join` functions in the tidyverse.
+  
+```{r}
+
+```
+
+
+
+
 2. merge vs. left_, right_, and full_join
 3. tapply vs. group_by + summarize or mutate
 4. spread, gather / pivots_
