@@ -253,3 +253,19 @@ lots
 
 
 
+
+
+
+## send out packages / data set
+
+## Talk about context
+  ### Better for non-programmers to read
+
+## What to look at to keep learning the tidyverse
+
+## Focus on data cleaning
+
+## Why to switch if at all
+
+
+## Put this on resume
