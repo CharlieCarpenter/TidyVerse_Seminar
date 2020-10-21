@@ -6,12 +6,12 @@ output: html_document
 
 https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/#:~:text=The%20tidyverse%20is%20a%20coherent,being%20expanded%20by%20several%20contributors.
 
-```{r, include = F}
+## Introduction
+
+```{r}
+# install.packages('tidyverse'); install.packages('magrittr') 
 library(tidyverse); library(magrittr)
 ```
-
-
-## Introduction
 
 #### What is the 'tidyverse'?
 
@@ -19,9 +19,9 @@ library(tidyverse); library(magrittr)
 
 #### Why use the 'tidyverse'?
 
-  The tidyverse doesn't offer that many new functions. In fact, most of the operations you would perform using the tidyverse are available through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more coherent and readable code.
+  The tidyverse doesn't provide any new functionality to R. In fact, most of the operations you would perform using the tidyverse are available through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more **coherent and readable** code.
 
-  Hadley often quotes famous computer scientist Hal Abelson when discussing his philosophy for tidyverse code: 
+  Wickham often quotes famous computer scientist Hal Abelson when discussing his philosophy for tidyverse code: 
 
 > “Programs must be written for people to read 
 > and only incidentally for machines to execute”. 
@@ -51,16 +51,132 @@ mtcars %>%
 
 ## Overview
 
-The tidyverse is very big, so we won't be able to cover everything. In this presentation we will focus on *pipe* operators, *dplyr* and *tidyr* for data manipulation, *rlang* operations for programming
-
-3. tidyverse is very big so we can't cover it all. 
-  a. everyone is probably already familiar with `ggplot2`
+  The tidyverse is very big, so we won't be able to cover everything. In this presentation we will focus on data visualization using `ggplot2`, new coding syntax using *pipe* operators, and `dplyr`/`tidyr` for data manipulation.
 
 ## Plotting
 
+  One of the first entries in the tidyverse was the `ggplot2` package. There are many methods to crest plots within R, but `ggplot2` claims to be "one of the most elegant and most versatile" packages. I tend to agree :). 
+  
+  `ggplot2` works on the principle of "layered graphics," in which different elements are layered on top of one another to tell a story greater than the sum of their individual parts. If you're interested in data visualization, Wickham's paper on the [theory of layered graphics](http://vita.had.co.nz/papers/layered-grammar.pdf) might be of interest. 
+  
+  We will be walking through some examples using the `mpg` dataset from the `ggplot2` package.
+  
+```{r}
+head(mpg) ## Dataset from the ggplot2 package
+```
+  
+### Creating a ggplot2
+
+  `ggplot2` works by creating a base 'layer' with the `ggplot` function, and then adding specific plotting layers onto the base plot. These layers are called **geoms**, and there are several to chose from.
+  
+  Lets start by creating a simple scatterplot of cars' mpg on the highway, `hwy`, by the cars engine size in litres, `displ`.
+
+```{r}
+ggplot(data = mpg) + # base plot
+  geom_point(mapping = aes(x = displ, y = hwy)) # specifying points
+```
+
+### Basic Aesthetics
+
+  The true power of `ggplot2` (in my opinion) comes from the flexibility of the `aes` function. This piece controls the *aesthetics* of the graph. We can use this function to specify **color**,
+  
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = drv)) 
+```
+
+**shape**,
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = drv)) 
+```
+
+and **size** of plotting aspects.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = drv)) 
+```
+
+We can also add in multiple aesthetics for clearer groupings.
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, 
+                           shape = drv, color = drv)) 
+```
+
+### Smoothers
+
+  A great addition from `ggplot2` is it's built in smoother functions. The default for smaller data sets is to use a *loess* smoother. Other available options include "gam", "lm", "glm", and others. 
+  
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv)) 
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv),
+              method = 'lm', se = FALSE) # Linear model, no error bars
+```
+
+### Layering
+
+  I mentioned earlier that `ggplot2` is built using a theory of "layered graphics." In practice, this means we can "layer" multiple geoms! We do this by stringing together multiple geoms using a `+` between each layer.
+  
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy,
+                            shape = drv, color = drv)) +
+  geom_smooth(mapping = aes(x = displ, y = hwy, color = drv),
+              show.legend = FALSE) ## Surpress this legend 
+```
+  
+  There is a lot of flexibile customization option available through `ggplot2` package. 
+  
+```{r}
+ggplot(data = mpg, 
+       aes(x = displ, y = hwy, color = drv) # 'Global' aesthetics
+       ) +
+  geom_point(aes(shape = drv) # 'Geom specific' aesthetic
+             ) +
+  geom_smooth(aes(linetype = drv),
+              show.legend = FALSE) + # Surpress this legend 
+  facet_wrap(~ drv) + # Create subplots by a variable
+  labs(title = "Title", subtitle = 'sub', caption = 'caption',
+       y = "MPG on Highway", x = "Engine Size (L)") + # Custom Labels
+  theme_bw() # New plot theme
+```
+
+### Other Plot Types
+
+  Obviously, we can make more than just scatterplots. Below are two examples of other plots styles available in `ggplot2`
+  
+**Boxplots**
+
+```{r}
+ggplot(mpg, aes(x=class, y=hwy, fill = class)) + # 'Global' aes
+  geom_boxplot() + # make a boxplot
+  theme_minimal() # 'minimal' theme
+```
+
+**Bar Charts**
+
+```{r}
+ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aes
+  geom_col() + # make a boxplot
+  theme_classic()
+```
+  
+### Extentions
+
+  Since R is an open source software with a very active community, many programmers have created plotting packages with custom geoms for plotting different data in the style of `ggplot2`. A few examples include `ggtree` for (phylogenetic) trees, `ggdendro` for generic dendrograms, `ggrepel` for labeling, and `ggnetwork` for network/graph data.
+
 ## The 'pipe' function
   
-  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package. It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. Except instead of performing a function on two objects, tt takes the object on the left and moves it to the first argument of the function on the right.
+  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package. It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. Except instead of performing a function on two objects, it takes the object on the left and moves it to the first argument of the function on the right.
   
 ```{r}
 mtcars %>% head()
@@ -72,9 +188,9 @@ mtcars %>% head()
 mtcars %>% lm(mpg~cyl, data = .) 
 ```
 
-  There are multiple piping functions available in the `magrittr` package: `%<>%`, `%T>%`, `%$%`. We won't cover these, but they each have interesting functionality that could be very helpful.
+  There are multiple piping functions available in the `magrittr` package: `%<>%`, `%T>%`, `%$%`. We won't cover these, but they each have interesting functionality that can be very helpful.
 
-  This seems like an unnecessary step, but, when stringing mulitple opperations together, it becomes an essential tool to keep code readable. The format for adding *'geoms'* to a `ggplot` was an early formulation of this idea of stringing multiple functions together through an external function.
+  This seems like an unnecessary step, but, when stringing multiple operations together, it becomes an essential tool to keep code readable. The format for adding *geoms* to a `ggplot` was an early formulation of this idea of stringing multiple functions together through an external function.
 
 ## Examples of base functions and tidyverse
 
@@ -115,7 +231,7 @@ mtcars %>% pull(1)
 mtcars %>% pull(mpg)
 ```
   
-  We can also maintain the data.frame stucture using the `select` function from the *dplyr* package. 
+  We can also maintain the data.frame structure using the `select` function from the *dplyr* package. 
   
 ```{r, eval = F}
 select(mtcars, 1)
@@ -125,7 +241,7 @@ select(mtcars, 1,2,3)
 mtcars %>% select(1:3)
 ```
 
-  The `select` function also gives the user flexible and intuitive functions for selecting ranges, complements, inersections and unions, or specifying selection through regular expressions with helper functions.
+  The `select` function also gives the user flexible and intuitive functions for selecting ranges, complements, intersections and unions, or specifying selection through regular expressions with helper functions.
   
 ```{r, eval = FALSE}
 ## Selecting a vars 'mpg', 'cyl', 'disp', and 'hp'
@@ -155,7 +271,7 @@ subset(mtcars, disp >= mean(disp))
 
   Note that this is one of the few times that base code uses 'none standard evaluation.' This means that it captures input as '*expressions*' to be evaluated within the function's environment, i.e. we don't need to use any *extraction* functions such as `[]` or `$` within the argument. The `subset` function would look like this: `subset(mtcars, mtcars$disp >= mean(mtcars$disp))` if it worked like most `base` functions.
 
-  The tidyverse primarily opperates by capturing arguments as *expressions*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
+  The tidyverse primarily operates by capturing arguments as *expressions*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
 
 ```{r}
 ## Multiple filtering options. 
@@ -262,6 +378,10 @@ lots
   ### Better for non-programmers to read
 
 ## What to look at to keep learning the tidyverse
+
+[R for Data Science](https://r4ds.had.co.nz/)
+
+
 
 ## Focus on data cleaning
 
