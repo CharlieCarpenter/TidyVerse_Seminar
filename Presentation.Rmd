@@ -8,7 +8,7 @@ https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/#:~:text=The%20tidyv
 
 ## Introduction
 
-```{r}
+```{r, message=FALSE}
 # install.packages('tidyverse'); install.packages('magrittr') 
 library(tidyverse); library(magrittr)
 ```
@@ -41,7 +41,7 @@ mt.ranges <- tapply(mtcars0$mpg, mtcars0$cyl, range)
 do.call(rbind, mt.ranges)
 ```
 
-  The tidyverse provides readable code without the need to name multiple objects:
+  The tidyverse provides readable code without the need to nest functions or name multiple objects:
 ```{r}
 mtcars %>% 
   filter(vs == 0) %>% 
@@ -62,7 +62,7 @@ mtcars %>%
   We will be walking through some examples using the `mpg` dataset from the `ggplot2` package.
   
 ```{r}
-head(mpg) ## Dataset from the ggplot2 package
+mpg ## Dataset from the ggplot2 package
 ```
   
 ### Creating a ggplot2
@@ -184,7 +184,7 @@ mtcars %>% head()
 
   The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`.
   
-```{r}
+```{r, eval = FALSE}
 mtcars %>% lm(mpg~cyl, data = .) 
 ```
 
@@ -194,17 +194,19 @@ mtcars %>% lm(mpg~cyl, data = .)
 
 ## Examples of base functions and tidyverse
 
-  As we said earlier, there aren't many things you can do with the tidyverse that you can't do with `base` R. In fact, the tidyverse is mostly built out of `base` R, like R is built out of C code.
+  As we said earlier, there aren't many things you can do with the tidyverse that you can't do with `base` R. In fact, the tidyverse is mostly built out of `base` R (and a little `Rcpp`), like R is built out of C code.
   
 ### Extracting Variables  
   
-#### Base Extraction
+##### Base Extraction
 
-  We're all with extraction functions in `base`. 
+  We're all familiar with extraction methods in `base`. 
 
 ```{r}
 ## First column as vector
 mtcars[,1] 
+## or
+mtcars[,'mpg']
 ## or
 mtcars$mpg
 ## or (unnecessarily)
@@ -214,14 +216,16 @@ getElement(mtcars, 'mpg')
   We can also maintain the original dimension of the object using `drop = FALSE` or selecting multiple columns.
 
 ```{r}
-mtcars[,1, drop = FALSE]
+head( mtcars[,1, drop = FALSE] )
 ```
 
 ```{r}
-mtcars[,1:2]
+head( mtcars[,1:2] )
 ```
 
-#### Tidyverse Extraction
+##### Tidyverse Extraction
+
+  tidyverse provides the `pull` and `select` functions to replace the extractors from `base`. `pull` is used to extract a *single* column and simplify it to a vector, and `select` is used to extract *one or more* columns and maintain the data's original structure (i.e. data.frames remain data.frames). 
 
 ```{r}
 ## First column as vector
@@ -265,11 +269,15 @@ mtcars %>%
 
 ### Subset and Filter
 
+##### Base
+
 ```{r}
 subset(mtcars, disp >= mean(disp))
 ```
 
   Note that this is one of the few times that base code uses 'none standard evaluation.' This means that it captures input as '*expressions*' to be evaluated within the function's environment, i.e. we don't need to use any *extraction* functions such as `[]` or `$` within the argument. The `subset` function would look like this: `subset(mtcars, mtcars$disp >= mean(mtcars$disp))` if it worked like most `base` functions.
+
+##### Tidyverse
 
   The tidyverse primarily operates by capturing arguments as *expressions*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
 
@@ -282,9 +290,9 @@ mtcars %>%
          vs == 0)
 ```
 
-#### Subset and Extraction
+### Subset and Extraction
 
-##### R base
+##### Base
 
 ```{r}
 ## Subset data.frame
@@ -308,50 +316,45 @@ mtcars %>%
   pull(cyl)
 ```
 
-### Merging 
+### Grouped Functions
 
-  First lets make some data sets to work with.
+##### Base
+
 
 ```{r}
-authors <- data.frame(
-    ## I(*) : use character columns of names to get sensible sort order
-    surname = I(c("Tukey", "Venables", "Tierney", "Ripley", "McNeil")),
-    nationality = c("US", "Australia", "US", "UK", "Australia"),
-    deceased = c("yes", rep("no", 4)))
-
-## Just changing the column name (would be easier with the tidyverse!)
-authorN <- within(authors, { name <- surname; rm(surname) })
-
-## Data frame for merging
-books <- data.frame(
-    name = I(c("Tukey", "Venables", "Tierney",
-             "Ripley", "Ripley", "McNeil", "R Core")),
-    title = c("Exploratory Data Analysis",
-              "Modern Applied Statistics ...",
-              "LISP-STAT",
-              "Spatial Statistics", "Stochastic Simulation",
-              "Interactive Data Analysis",
-              "An Introduction to R"),
-    other.author = c(NA, "Ripley", NA, NA, NA, NA,
-                     "Venables & Smith"))
+tapply(mtcars$mpg, mtcars$cyl, mean)
 ```
 
-#### Base
+##### Tidyverse
 
-  Base offers the `merge` function that has `all._` options that act similarly to the different `*_join` functions in the tidyverse.
-  
 ```{r}
-
+mtcars %>% 
+  group_by(cyl) %>% 
+  summarise(Mean_mpg = mean(mpg))
 ```
 
+### Split, Apply, Combine
 
+`d_ply`, `_` can be d,a,l, data.frame, array, list.
+
+Can also use `a_ply`, `l_ply`, `m_ply` for different inputs.
+
+
+[Split-Apply-Combine paper](https://vita.had.co.nz/papers/plyr.pdf)
+
+```{r}
+mtcars %>% 
+  plyr::ddply(~ cyl, .fun = function(set){
+    ## linear model for each cly level
+    mod <- lm(mpg ~ disp, data = set) 
+    
+    ## Model coefficients
+    coef(mod)
+  })
+```
 
 
 2. merge vs. left_, right_, and full_join
-3. tapply vs. group_by + summarize or mutate
-4. spread, gather / pivots_
-
-5. sapply and lapply vs ddply/ldply
 
 ## Syntax
 Combine large data operation into one single flow vs. a multistage operation with nested () or multiple names
@@ -359,16 +362,17 @@ Combine large data operation into one single flow vs. a multistage operation wit
 Phil Karlton - "There are only two hard things in Computer Science: cache invalidation and naming things."
 
 ## Advantages
-lots
+
+1. Better plotting functions
+2. Easier for humans to read and arguably simpler to write
+    + *pipe* functions allow us to code how we talk and think
 
 ## Disadvantages
-1. Still a 'work in progress'
-  a. melt/cast -> gather/spread -> pivot_longer/pivot_wider
-
-2. "Rectangular" data structure isn't adopted by everyone. Bioconductor doesn't play very well with tidyverse for this reason. tidyverse doesn't really work with S4 objects
-
-
-
+1. Still a 'work in progress'. Many functions are continuously changing
+    + new `.groups` argument in the `select` function
+    + melt/cast -> gather/spread -> pivot_longer/pivot_wider
+2. "Rectangular" data structure isn't adopted by everyone. 
+    + Bioconductor requires S4 objects
 
 
 
