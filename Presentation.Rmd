@@ -4,7 +4,7 @@ author: "Charlie Carpenter"
 output: html_document
 ---
 
-https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/#:~:text=The%20tidyverse%20is%20a%20coherent,being%20expanded%20by%20several%20contributors.
+* Charlie
 
 ## Introduction
 
@@ -52,6 +52,8 @@ mtcars %>%
 ## Overview
 
   The tidyverse is very big, so we won't be able to cover everything. In this presentation we will focus on data visualization using `ggplot2`, new coding syntax using *pipe* operators, and `dplyr`/`tidyr` for data manipulation.
+
+* Shelby
 
 ## Plotting
 
@@ -174,6 +176,8 @@ ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aes
 
   Since R is an open source software with a very active community, many programmers have created plotting packages with custom geoms for plotting different data in the style of `ggplot2`. A few examples include `ggtree` for (phylogenetic) trees, `ggdendro` for generic dendrograms, `ggrepel` for labeling, and `ggnetwork` for network/graph data.
 
+* Charlie
+
 ## The 'pipe' function
   
   The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package. It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. Except instead of performing a function on two objects, it takes the object on the left and moves it to the first argument of the function on the right.
@@ -267,6 +271,8 @@ mtcars %>%
 mtcars %>% 
   select(Miles_Per_Gal = mpg) ## new_name = original_name
 ```
+
+* Shelby
 
 ### Subset and Filter
 
@@ -368,6 +374,8 @@ mtcars %>%
   mutate(across(starts_with("c"), log))
 ```
   
+* Charlie
+
 ### Grouped Functions
 
   Applying functions to a variable grouped by another variable (stratifying) is an important concept in many stats methods. In `base` the simplest way to accomplish this kind of process is to use the `tapply` function. It even has a useful *snippet* when you just type 'tapply' and hit enter.
@@ -473,6 +481,8 @@ mpg %>%
 
 ```
 
+* Shelby
+
 ## Syntax
 Combine large data operation into one single flow vs. a multistage operation with nested () or multiple names
 
@@ -483,6 +493,8 @@ Phil Karlton - "There are only two hard things in Computer Science: cache invali
   Again, there is nothing you can do in the tidyverse that you can't do using base R functions. The exception being some of the visualizations from `ggplot` and its extensions.
   
   At worst, the tidyverse seems like a reworking of `base` R functions so that they don't have the small things from `base` that annoyed Hadley. At best, it is large improvements over `base` functions like `ggplot` and `%>%`. That said, there are plenty of people who are against this new coding style. 
+
+* Charlie
 
 ### Advantages
 
