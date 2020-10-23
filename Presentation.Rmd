@@ -365,7 +365,7 @@ mtcars %>%
 
 ## or maybe
 mtcars %>% 
-  mutate(across(starts_with("c")), log)
+  mutate(across(starts_with("c"), log))
 ```
   
 ### Grouped Functions
@@ -410,16 +410,14 @@ mtcars %>%
   group_by(cyl) %>% 
   mutate(s.mpg = scale(mpg))
 ```
-  
 
 ### Split, Apply, Combine
 
-`d_ply`, `_` can be d,a,l, data.frame, array, list.
-
-Can also use `a_ply`, `l_ply`, `m_ply` for different inputs.
-
-
-[Split-Apply-Combine paper](https://vita.had.co.nz/papers/plyr.pdf)
+  The `mutate` and `summarise` functions are very convenient for doing many simple opperations that return either a single vector or value, respectively. But when we want to do larger operations and return more complex objects the tidyverse offers a family of very useful functions.
+  
+  The *split-apply-combine* family from the `plyr` package all take a data frame, an array, a list, or a matrix and return an array, a data frame, a list, or discard results (useful for plotting or saving output). For a complete description of these methods and the philosophy behind them, Wickham's [Split-Apply-Combine paper](https://vita.had.co.nz/papers/plyr.pdf) is a very easy read.
+  
+**Input: data.frame; Output: data.frame**
 
 ```{r}
 mtcars %>% 
@@ -432,8 +430,48 @@ mtcars %>%
   })
 ```
 
+**Input: list; Output: data.frame**
 
-2. merge vs. left_, right_, and full_join
+```{r}
+## Making a list to work with
+l.mtcars <- split(mtcars, mtcars$cyl)
+
+l.mtcars %>% 
+  plyr::ldply(.fun = function(set) {
+    ## linear model for each cly level
+    mod <- lm(mpg ~ disp, data = set) 
+    
+    ## Model coefficients
+    coef(mod)
+  })
+```
+
+**Input: data.frame; Output: discarded**
+
+```{r}
+par(mfrow=c(1,3))
+mpg %>% 
+  plyr::d_ply(~ drv, .fun = function(set){
+    
+    ## Linear model for regression line
+    .mod <- lm(hwy ~ displ, data = set)
+    .coef <- coef(.mod)
+  
+    ## Title
+    title <- paste('drv =', unique(set$drv))
+    
+    ## Overcomplicated code for colors
+    if(unique(set$drv) == 4){
+      line.col <- 'firebrick3'
+    } else if(unique(set$drv) == 'f'){
+      line.col <- 'deepskyblue2'
+    } else line.col <- 'forestgreen'
+    
+    plot(hwy ~ displ, data = set, col = line.col, main = title)
+    abline(a = .coef[1], b = .coef[2], col = line.col)
+  })
+
+```
 
 ## Syntax
 Combine large data operation into one single flow vs. a multistage operation with nested () or multiple names
