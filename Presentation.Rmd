@@ -217,9 +217,7 @@ getElement(mtcars, 'mpg')
 
 ```{r}
 head( mtcars[,1, drop = FALSE] )
-```
 
-```{r}
 head( mtcars[,1:2] )
 ```
 
@@ -229,13 +227,13 @@ head( mtcars[,1:2] )
 
 ```{r}
 ## First column as vector
-pull(mtcars, 1)
+pull(mtcars, 1) # same as mtcars[,1]
 ## or with the 'pipe'
 mtcars %>% pull(1)
-mtcars %>% pull(mpg)
+mtcars %>% pull(mpg) # same as mtcars$mpg
 ```
   
-  We can also maintain the data.frame structure using the `select` function from the *dplyr* package. 
+  Or we can maintain the data.frame structure using the `select` function from the *dplyr* package. This is equivalent to using the `drop = FALSE` argument of the `[` function.
   
 ```{r, eval = F}
 select(mtcars, 1)
@@ -243,12 +241,15 @@ select(mtcars, 1)
 select(mtcars, 1,2,3)
 ## equivalently
 mtcars %>% select(1:3)
+
+## Selecting columns specified by name (most common use)
+mtcars %>% select(mpg, hp, wt, qsec)
 ```
 
   The `select` function also gives the user flexible and intuitive functions for selecting ranges, complements, intersections and unions, or specifying selection through regular expressions with helper functions.
   
 ```{r, eval = FALSE}
-## Selecting a vars 'mpg', 'cyl', 'disp', and 'hp'
+## Selecting vars 'mpg', 'cyl', 'disp', and 'hp'
 mtcars %>% select(mpg:hp)
 
 ## Selecting using regular expression helper functions
@@ -279,7 +280,7 @@ subset(mtcars, disp >= mean(disp))
 
 ##### Tidyverse
 
-  The tidyverse primarily operates by capturing arguments as *expressions*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
+  The tidyverse primarily operates by capturing arguments as *expressions*. The call this method of controlling the environment in which functions are executed *tidy evaluaiton*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
 
 ```{r}
 ## Multiple filtering options. 
@@ -316,22 +317,100 @@ mtcars %>%
   pull(cyl)
 ```
 
+### Adding columns
+
+  Adding columns and performing opperations on existing columns is an essential part of data cleaning. Whether it is manipulating a variable or adding new columns that are functions of existing ones, it is important that the operations you perform are clear and reproducible. When someone inherits your code (or when you have to revisit it months later) there should be very little guessing as to what the code is doing. Commenting throughout is always the best practice, but we all know that our good commenting habbits come and go.
+  
+##### Base
+
+  Adding columns to a dataset is easy and easy to read when the operation is small.
+  
+```{r}
+mtcars$log.mpg <- log(mtcars$mpg)
+```
+
+  Here it easy to see how the need to name the data and select the variable with `$` over and over can make reatively simple opperations hard to read.
+
+```{r}
+mtcars$s.mpg <- (mtcars$mpg - mean(mtcars$mpg))/sd(mtcars$mpg)
+
+# Or just use the 'scale' function
+# mtcars$s.mpg <- scale(mtcars$mpg)
+```
+  
+##### Tidyverse  
+  
+   We can use the `mutate` function to add a new column to our data.frame and take advantage of the *tidy evaluation* from the tidyverse. This prevents us from needing to name the data set every time.
+  
+```{r, eval = F}
+mtcars %>% ## Adding a new column called s.mpg
+  mutate(s.mpg = (mpg - mean(mpg)/sd(mpg)) ) 
+```
+
+  We can also add in multiple columns in one mutate step. Not that we can create a variable (like *log.mpg*) and then make aditional variables based on this new variable. This is because most of the tidyverse works with something called 'lazy evaluation.'
+
+```{r, eval = FALSE}
+mtcars %>% 
+  mutate(s.mpg = (mpg - mean(mpg)/sd(mpg)),
+         log.mpg = log(mpg),
+         ls.mpg = (log.mpg - mean(log.mpg)/sd(log.mpg))
+         )
+```
+  
+  Or we can get fancy and apply functions accross multiple columns at once. However, I think we start to lose some of the "readability" that is such a bonus from the tidyverse.
+  
+```{r}
+mtcars %>% 
+  mutate(across(where(is.numeric), scale))
+
+## or maybe
+mtcars %>% 
+  mutate(across(starts_with("c")), log)
+```
+  
 ### Grouped Functions
+
+  Applying functions to a variable grouped by another variable (stratifying) is an important concept in many stats methods. In `base` the simplest way to accomplish this kind of process is to use the `tapply` function. It even has a useful *snippet* when you just type 'tapply' and hit enter.
 
 ##### Base
 
-
 ```{r}
+## Getting the mean mpg by cyl group
 tapply(mtcars$mpg, mtcars$cyl, mean)
+
+## Making a custom function
+tapply(mtcars$mpg, mtcars$cyl, function(x) round(mean(x), 2))
 ```
 
+  As useful as this is, we can only group by one variable! What do we do when we want to group by multiple variables? In `base` you can use the `split` function with `interaction`, but the ability for multiple grouping variables is already coded up into the tidyverse.
+  
 ##### Tidyverse
 
+  We can use the `group_by` function to create lasting groups within our data.frame. We can use the useful `summarise` function to get nice summary statistics.
+
 ```{r}
+## summarise our data set by one group
 mtcars %>% 
   group_by(cyl) %>% 
-  summarise(Mean_mpg = mean(mpg))
+  summarise(Mean_mpg = mean(mpg), SD_mpg = sd(mpg),
+            Mean_disp = mean(disp), SD_disp = sd(disp))
+
+## group by multiple variables
+mtcars %>% 
+  group_by(cyl, vs) %>% 
+  summarise(n = n(), Mean_mpg = mean(mpg), SD_mpg = sd(mpg),
+            Mean_disp = mean(disp), SD_disp = sd(disp))
 ```
+
+  The `group_by` can also be very useful when combined with `mutate`. 
+  
+```{r}
+## Scaling mpg within cyl category
+mtcars %>% 
+  group_by(cyl) %>% 
+  mutate(s.mpg = scale(mpg))
+```
+  
 
 ### Split, Apply, Combine
 
@@ -361,13 +440,20 @@ Combine large data operation into one single flow vs. a multistage operation wit
 
 Phil Karlton - "There are only two hard things in Computer Science: cache invalidation and naming things."
 
-## Advantages
+## Summary
 
-1. Better plotting functions
+  Again, there is nothing you can do in the tidyverse that you can't do using base R functions. The exception being some of the visualizations from `ggplot` and its extensions.
+  
+  At worst, the tidyverse seems like a reworking of `base` R functions so that they don't have the small things from `base` that annoyed Hadley. At best, it is large improvements over `base` functions like `ggplot` and `%>%`. That said, there are plenty of people who are against this new coding style. 
+
+### Advantages
+
+1. Excellent plotting functions
 2. Easier for humans to read and arguably simpler to write
     + *pipe* functions allow us to code how we talk and think
 
-## Disadvantages
+### Disadvantages
+
 1. Still a 'work in progress'. Many functions are continuously changing
     + new `.groups` argument in the `select` function
     + melt/cast -> gather/spread -> pivot_longer/pivot_wider
