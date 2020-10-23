@@ -1,6 +1,6 @@
 ---
 title: "Intro to Tidyverse"
-author: "Charlie Carpenter"
+author: "Charlie Carpenter & Shelby Smith"
 output: html_document
 ---
 
