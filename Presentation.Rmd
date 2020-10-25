@@ -21,19 +21,21 @@ library(tidyverse); library(magrittr)
 
   The tidyverse doesn't provide any new functionality to R. In fact, most of the operations you would perform using the tidyverse are available through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more **coherent and readable** code.
 
-  Wickham often quotes famous computer scientist Hal Abelson when discussing his philosophy for tidyverse code: 
+  Wickham often quotes famous computer scientist [Hal Abelson](https://en.wikipedia.org/wiki/Hal_Abelson) when discussing his philosophy for tidyverse code: 
 
 > “Programs must be written for people to read 
 > and only incidentally for machines to execute”. 
 >
 > `r tufte::quote_footer('--- Hal Abelson')`
 
-  Code can easily become cumbersome to read using only `base` code,
+  Code can easily become cumbersome to read using only `base` code. We either need to nest functions within functions
+  
 ```{r}
 unlist(tapply(mtcars[mtcars$vs == 0, ]$mpg, mtcars[mtcars$vs == 0, ]$cyl, range))
 ```
 
 or we need to create multiple objects to delineate steps.
+
 ```{r}
 mtcars0 <- mtcars[mtcars$vs == 0, ]
 mt.ranges <- tapply(mtcars0$mpg, mtcars0$cyl, range)
@@ -42,6 +44,7 @@ do.call(rbind, mt.ranges)
 ```
 
   The tidyverse provides readable code without the need to nest functions or name multiple objects:
+  
 ```{r}
 mtcars %>% 
   filter(vs == 0) %>% 
@@ -51,13 +54,13 @@ mtcars %>%
 
 ## Overview
 
-  The tidyverse is very big, so we won't be able to cover everything. In this presentation we will focus on data visualization using `ggplot2`, new coding syntax using *pipe* operators, and `dplyr`/`tidyr` for data manipulation.
+  The tidyverse is very big, so we won't be able to cover everything. In this presentation we will focus on data visualization using `ggplot2`, new coding syntax using *pipe* operators, and `dplyr`/`tidyr` for data manipulation. At the end of each section we will have exercises for you to complete on your own.
 
 * Shelby
 
 ## Plotting
 
-  One of the first entries in the tidyverse was the `ggplot2` package. There are many methods to crest plots within R, but `ggplot2` claims to be "one of the most elegant and most versatile" packages. I tend to agree :). 
+  One of the first entries in the tidyverse was the `ggplot2` package. There are many methods to create plots within R, but `ggplot2` claims to be "one of the most elegant and most versatile" packages. I tend to agree with this claim :). 
   
   `ggplot2` works on the principle of "layered graphics," in which different elements are layered on top of one another to tell a story greater than the sum of their individual parts. If you're interested in data visualization, Wickham's paper on the [theory of layered graphics](http://vita.had.co.nz/papers/layered-grammar.pdf) might be of interest. 
   
@@ -69,7 +72,7 @@ mpg ## Dataset from the ggplot2 package
   
 ### Creating a ggplot2
 
-  `ggplot2` works by creating a base 'layer' with the `ggplot` function, and then adding specific plotting layers onto the base plot. These layers are called **geoms**, and there are several to chose from.
+  `ggplot2` works by creating a base 'layer' with the `ggplot` function and then adding specific plotting layers onto this base plot. These layers are called **geoms**, and there are several to chose from.
   
   Lets start by creating a simple scatterplot of cars' mpg on the highway, `hwy`, by the cars engine size in litres, `displ`.
 
@@ -80,7 +83,9 @@ ggplot(data = mpg) + # base plot
 
 ### Basic Aesthetics
 
-  The true power of `ggplot2` (in my opinion) comes from the flexibility of the `aes` function. This piece controls the *aesthetics* of the graph. We can use this function to specify **color**,
+  The true power of `ggplot2` (in my opinion) comes from the flexibility of the `aes` function. This piece controls the *aesthetics* of the geom. These aesthetics can me set in the base `ggplot` layer or the individual geom layers. Specifying aesthetics in the base layer will apply them to all layers of the plot.
+  
+  With the `aes` function we can specify **color**,
   
 ```{r}
 ggplot(data = mpg) +
@@ -136,7 +141,7 @@ ggplot(data = mpg) +
               show.legend = FALSE) ## Surpress this legend 
 ```
   
-  There is a lot of flexibile customization option available through `ggplot2` package. 
+  There is a lot of flexibile customization option available through `ggplot2` package. The code below shows an example of using aesthetics within the base plot which will be applied to every layer and usng geom specific aesthetics which will only be applied to that layer.
   
 ```{r}
 ggplot(data = mpg, 
@@ -180,21 +185,70 @@ ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aes
 
 ## The 'pipe' function
   
-  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package. It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. Except instead of performing a function on two objects, it takes the object on the left and moves it to the first argument of the function on the right.
+  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package.
+
+> “No matter how complex and polished the individual operations are,
+> it is often the quality of the glue that most directly determines
+> the power of the system.
+> 
+> `r tufte::quote_footer('--- Hal Abelson')`
+
+  It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. Except instead of performing a function on two objects, it takes the object on the left and moves it to the first argument of the function on the right.
   
 ```{r}
-mtcars %>% head()
+## Pipe into function
+head(mtcars) 
+mtcars %>% head 
+
+## Pipe into function and include arguments
+plot(mtcars$mpg, main = "MPG")
+mtcars$mpg %>% plot(main = "MPG") 
+```
+  
+  The format for adding *geoms* to a `ggplot` was an early formulation of this idea of stringing multiple functions together through an external function.
+  
+  The following are pairs of opperations that are all equivalent to one another. It is clear that operations with fewer steps don't benefit from piping objects, but multistep processes quickly become easier to read.
+  
+```{r, eval = FALSE}
+## Nested functions
+arrange(
+  summarise(
+    group_by(
+      filter(mtcars, mpg > 15),
+      cyl
+    ), 
+    mean(wt), .groups = 'drop'
+  ),
+  desc(cyl)
+)
+
+## Multiple Names
+filts <- filter(mtcars, mpg > 15)
+grpby <- group_by(filts, cyl)
+sumry <- summarise(grpby)
+
+## Piping for clean code
+mtcars %>% 
+  filter(mpg > 15) %>% 
+  group_by(cyl) %>% 
+  summarise(mean(wt), .groups = 'drop') %>% 
+  arrange(desc(cyl))
 ```
 
-  The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`.
+  The last option is easier to read and more concise that either of the previous ones. No more nested functions mean you don't have to think and type *backwards*; you can think, type, and read in the same order using pipes. No more useless intermediate objects *data1, data2, data3,...*. We only have to name important steps or meaninfully different objects. In no small way this solves one of Phil Karlton's two hard problems in computer science:
+
+> "There are only two hard things in computer science:
+> cache invalidation and naming things."
+>
+> `r tufte::quote_footer('--- Hal Abelson')` 
+
+  The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`. There really isn't any place you can't use the pipe function!
   
 ```{r, eval = FALSE}
 mtcars %>% lm(mpg~cyl, data = .) 
 ```
 
   There are multiple piping functions available in the `magrittr` package: `%<>%`, `%T>%`, `%$%`. We won't cover these, but they each have interesting functionality that can be very helpful.
-
-  This seems like an unnecessary step, but, when stringing multiple operations together, it becomes an essential tool to keep code readable. The format for adding *geoms* to a `ggplot` was an early formulation of this idea of stringing multiple functions together through an external function.
 
 ## Examples of base functions and tidyverse
 
@@ -367,11 +421,13 @@ mtcars %>%
   
 ```{r}
 mtcars %>% 
-  mutate(across(where(is.numeric), scale))
+  mutate(across(where(is.numeric), scale)) %>% 
+  head
 
 ## or maybe
 mtcars %>% 
-  mutate(across(starts_with("c"), log))
+  mutate(across(starts_with("c"), log)) %>% 
+  head
 ```
   
 * Charlie
@@ -401,13 +457,15 @@ tapply(mtcars$mpg, mtcars$cyl, function(x) round(mean(x), 2))
 mtcars %>% 
   group_by(cyl) %>% 
   summarise(Mean_mpg = mean(mpg), SD_mpg = sd(mpg),
-            Mean_disp = mean(disp), SD_disp = sd(disp))
+            Mean_disp = mean(disp), SD_disp = sd(disp),
+            .groups = 'drop')
 
 ## group by multiple variables
 mtcars %>% 
   group_by(cyl, vs) %>% 
   summarise(n = n(), Mean_mpg = mean(mpg), SD_mpg = sd(mpg),
-            Mean_disp = mean(disp), SD_disp = sd(disp))
+            Mean_disp = mean(disp), SD_disp = sd(disp),
+            .groups = 'drop')
 ```
 
   The `group_by` can also be very useful when combined with `mutate`. 
@@ -483,18 +541,11 @@ mpg %>%
 
 * Shelby
 
-## Syntax
-Combine large data operation into one single flow vs. a multistage operation with nested () or multiple names
-
-Phil Karlton - "There are only two hard things in Computer Science: cache invalidation and naming things."
-
 ## Summary
 
-  Again, there is nothing you can do in the tidyverse that you can't do using base R functions. The exception being some of the visualizations from `ggplot` and its extensions.
-  
-  At worst, the tidyverse seems like a reworking of `base` R functions so that they don't have the small things from `base` that annoyed Hadley. At best, it is large improvements over `base` functions like `ggplot` and `%>%`. That said, there are plenty of people who are against this new coding style. 
+  Again, there is nothing you can do in the tidyverse that you can't do using base R functions. The exception being some of the visualizations from `ggplot` and its extensions. Despite this, people seem to love the tidyverse. Here is a post from [Quora](https://www.quora.com/Where-do-you-stand-on-Base-R-vs-the-tidyverse) where most people have nothing but great things to say. However, there are plenty of people who are against this new coding style, like in this blog post that sparked some controversy: [Why I don't use the tidyverse](https://blog.ephorie.de/why-i-dont-use-the-tidyverse). Some make the claim that it is harder (or at least no easier) to teach the tidyverse than base R: [Why it is hard to teach the tidyverse](https://github.com/matloff/TidyverseSkeptic). Here I tend to agree. The tidyverse is only 'easier' to understand if you already understand R.
 
-* Charlie
+  At worst, the tidyverse seems like a reworking of `base` R functions so that they don't have the small things from `base` that annoyed Hadley (e.g. `tibble`). At best, it is large improvements over `base` functions like `ggplot` and `%>%`.
 
 ### Advantages
 
@@ -510,22 +561,15 @@ Phil Karlton - "There are only two hard things in Computer Science: cache invali
 2. "Rectangular" data structure isn't adopted by everyone. 
     + Bioconductor requires S4 objects
 
-
-
-## send out packages / data set
-
-## Talk about context
-  ### Better for non-programmers to read
-
 ## What to look at to keep learning the tidyverse
 
-[R for Data Science](https://r4ds.had.co.nz/)
+* Textbook: [R for Data Science](https://r4ds.had.co.nz/)
 
+* An equivalent for [base R](https://cran.r-project.org/doc/contrib/de_Jonge+van_der_Loo-Introduction_to_data_cleaning_with_R.pdf)
 
+* Textbook on coding style: [R Style Guide](https://style.tidyverse.org/)
 
-## Focus on data cleaning
+* How to program with tidyverse:
+[Programming with dplyr](https://dplyr.tidyverse.org/articles/programming.html)
+  + I don't recommend programming with the tidyverse. Since it is 'always improving' it is always changing. Your programming could become invalid with a new tidyverse update, e.g. `spread` and `gather` are no longer 'supported' from the tidyverse.
 
-## Why to switch if at all
-
-
-## Put this on resume
