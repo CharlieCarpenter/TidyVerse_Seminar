@@ -1,0 +1,52 @@
+---
+title: "Tidyverse Presentation Exercises Solutions"
+author: "Shelby Smith"
+date: "10/25/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## `ggplot2` Exercises
+
+```{r}
+library(dslabs)
+head(gapminder)
+```
+
+
+1. To view the distribution of discrete variables like `continent`, try generating a bar chart that counts the number of observations of each `continent` in the dataset. Once you have this generated, try setting `fill = continent` within the global aesthetics & see how your visualization changes.
+
+```{r}
+ggplot(gapminder, aes(x = continent)) +
+  geom_bar()
+```
+
+```{r}
+ggplot(gapminder, aes(x = continent, fill = continent)) +
+  geom_bar()
+```
+
+2. What is the distribution of `life_expectancy` over the whole data set? (Hint: use the `geom_density` layer, after mapping the x-variable to  `life_expectancy`)
+
+```{r}
+ggplot(gapminder, aes(x = life_expectancy)) +
+  geom_density()
+```
+
+3. Can we group this by continent? Try setting "fill = `continent`" after "x = `life_expectancy`". (Hint: `geom_density(alpha = 0.5)` makes the density distributions transparent). 
+
+```{r}
+ggplot(gapminder, aes(x = life_expectancy, fill = continent)) +
+  geom_density(alpha = 0.5)
+```
+
+4. How has `life_expectancy` changed over the years, `year`, by `continent`? Try fitting this first with a scatter plot, and then with a 'lm' smoother to see two different ways of visualizing this. (Hint: one is much simpler on the eye!)
+
+```{r, message = FALSE}
+ggplot(data = gapminder) +
+  geom_smooth(mapping = aes(x = year, y = life_expectancy, color = continent), method = 'lm')
+```
+

@@ -1,7 +1,11 @@
 ---
 title: "Intro to Tidyverse"
 author: "Charlie Carpenter & Shelby Smith"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: spacelab
 ---
 
 * Charlie
@@ -13,13 +17,13 @@ output: html_document
 library(tidyverse); library(magrittr)
 ```
 
-#### What is the 'tidyverse'?
+### What is the 'tidyverse'?
 
-  The tidyverse is a collection of packages that are designed to work together to enhance any data cleaning, visualization, and analysis workflow. It is an enormous library of evolving packages and functions designed by Hadley Wickham and implemented in R. Packages in the tidyverse include `ggplot2` (visualizations), `dplyr` (data manipulation), `tidyr` (data manipulation), `readr` (data imports), `purrr` (functional programming), `tibble` (advanced data frames), `magrittr` (piping operations), `stringr` (advanced string operations), `lubridate` (advanced date operations), `forcats` (advanced factor operations), `modelr` (pipelines for modelling), `broom` (tidy model output), and many others.
+The tidyverse is a collection of packages that are designed to work together to enhance any data cleaning, visualization, and analysis work flow. It is an enormous library of evolving packages and functions designed by Hadley Wickham and implemented in R. Packages in the tidyverse include `ggplot2` (data visualizations), `dplyr` (data manipulation), `tidyr` (data manipulation), `readr` (data imports), `purrr` (functional programming), `tibble` (advanced data frames), `magrittr` (piping operations), `stringr` (advanced string operations), `lubridate` (advanced date operations), `forcats` (advanced factor operations), `modelr` (pipelines for modeling), `broom` (tidy model output), and many others.
 
-#### Why use the 'tidyverse'?
+### Why use the 'tidyverse'?
 
-  The tidyverse doesn't provide any new functionality to R. In fact, most of the operations you would perform using the tidyverse are available through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more **coherent and readable** code.
+  The tidyverse doesn't provide any new functionality to R. In fact, most of the operations you would perform using the tidyverse are available and can be performed through `base` R or the `stats` package. The primary goal of the tidyverse is to provide helpful wrappers for common operations that all work together, providing more **coherent and readable** code. For beginner coders, these tactics may even be more intuitive to understand and replicate. 
 
   Wickham often quotes famous computer scientist [Hal Abelson](https://en.wikipedia.org/wiki/Hal_Abelson) when discussing his philosophy for tidyverse code: 
 
@@ -43,7 +47,7 @@ mt.ranges <- tapply(mtcars0$mpg, mtcars0$cyl, range)
 do.call(rbind, mt.ranges)
 ```
 
-  The tidyverse provides readable code without the need to nest functions or name multiple objects:
+  The tidyverse provides readable code without the need to nest functions or name multiple objects. This often yields simpler, more efficient, and relatively easy to follow code chunks:
   
 ```{r}
 mtcars %>% 
@@ -52,38 +56,42 @@ mtcars %>%
   summarise(range(mpg), .groups = 'drop')
 ```
 
+---
+
 ## Overview
 
-  The tidyverse is very big, so we won't be able to cover everything. In this presentation we will focus on data visualization using `ggplot2`, new coding syntax using *pipe* operators, and `dplyr`/`tidyr` for data manipulation. At the end of each section we will have exercises for you to complete on your own.
+  The tidyverse is very big, so we won't be able to cover everything that this package has to offer. In this presentation we will focus on data visualization using `ggplot2`, new coding syntax using the *pipe* operator, and `dplyr`/`tidyr` for data manipulation. At the end of each section, we will have exercises for you to complete on your own as a way of practicing these implementations of the tidyverse. 
 
 * Shelby
 
-## Plotting
+## Plotting with `ggplot2`
 
-  One of the first entries in the tidyverse was the `ggplot2` package. There are many methods to create plots within R, but `ggplot2` claims to be "one of the most elegant and most versatile" packages. I tend to agree with this claim :). 
+  One of the first entries in the tidyverse was the `ggplot2` package. There are many methods of creating plots within R, but `ggplot2` claims to be "one of the most elegant and most versatile" packages. I tend to whole-heartedly agree with this claim :). 
   
-  `ggplot2` works on the principle of "layered graphics," in which different elements are layered on top of one another to tell a story greater than the sum of their individual parts. If you're interested in data visualization, Wickham's paper on the [theory of layered graphics](http://vita.had.co.nz/papers/layered-grammar.pdf) might be of interest. 
+ The `ggplot2` packages works on the principle of "layered graphics," in which different elements of data visualizations are layered on top of one another to tell a story greater than the sum of their individual parts. If you're interested in data visualization, Wickham's paper on the [theory of layered graphics](http://vita.had.co.nz/papers/layered-grammar.pdf) might be of interest to you!
   
   We will be walking through some examples using the `mpg` dataset from the `ggplot2` package.
   
 ```{r}
-mpg ## Dataset from the ggplot2 package
+head(mpg) ## Dataset from the ggplot2 package
 ```
   
-### Creating a ggplot2
+### Creating a Visualization 
 
-  `ggplot2` works by creating a base 'layer' with the `ggplot` function and then adding specific plotting layers onto this base plot. These layers are called **geoms**, and there are several to chose from.
+  Generating a visualization from this package works by creating a base 'layer' with the `ggplot()` function and then adding specific plotting layers onto this base plot. These layers are called **geoms**, and there are several to chose from.
   
-  Lets start by creating a simple scatterplot of cars' mpg on the highway, `hwy`, by the cars engine size in litres, `displ`.
+  Lets start by creating a simple scatter plot looking at cars' highway mpg, `hwy`, by the cars engine size in liters, `displ`.
 
 ```{r}
 ggplot(data = mpg) + # base plot
   geom_point(mapping = aes(x = displ, y = hwy)) # specifying points
 ```
 
+Here, `geom_point` was a **geom** used to specify we wanted to generate a scatter plot from this data with `displ` on the x-axis and `hwy` on the y-axis. These designations were done within the *aesthetics* of the `geom_point` function, which we will discuss in the next section. 
+
 ### Basic Aesthetics
 
-  The true power of `ggplot2` (in my opinion) comes from the flexibility of the `aes` function. This piece controls the *aesthetics* of the geom. These aesthetics can me set in the base `ggplot` layer or the individual geom layers. Specifying aesthetics in the base layer will apply them to all layers of the plot.
+  The true power of `ggplot2` (in my opinion) comes from the flexibility of the `aes` function. This piece controls the *aesthetics* of the **geom**. These aesthetics can be set in the base `ggplot` layer or the individual geom layers. Specifying aesthetics in the base layer will apply them to all layers of the plot.
   
   With the `aes` function we can specify **color**,
   
@@ -101,7 +109,7 @@ ggplot(data = mpg) +
 
 and **size** of plotting aspects.
 
-```{r}
+```{r, warning = FALSE}
 ggplot(data = mpg) +
   geom_point(mapping = aes(x = displ, y = hwy, size = drv)) 
 ```
@@ -116,14 +124,19 @@ ggplot(data = mpg) +
 
 ### Smoothers
 
-  A great addition from `ggplot2` is it's built in smoother functions. The default for smaller data sets is to use a *loess* smoother. Other available options include "gam", "lm", "glm", and others. 
+  A great addition from `ggplot2` is it's built in smoother functions. The default for smaller data sets is to use a *loess* smoother. Other available options include "gam", "lm", and "glm", among others. 
   
-```{r}
+```{r, message = FALSE}
 ggplot(data = mpg) +
   geom_smooth(mapping = aes(x = displ, y = hwy, color = drv)) 
 ```
 
-```{r}
+Above, we can see th specification of `geom_smooth` as opposed to `geom_point` alters the plotting layer from the previously seen scatter plot to a smoothing line instead. 
+
+
+Here, we have adjusted the smoothing method to 'lm' instead of a 'loess' smoother and can see the linear relationships of each category within the `drv` variable. 
+
+```{r, message = FALSE}
 ggplot(data = mpg) +
   geom_smooth(mapping = aes(x = displ, y = hwy, color = drv),
               method = 'lm', se = FALSE) # Linear model, no error bars
@@ -131,29 +144,28 @@ ggplot(data = mpg) +
 
 ### Layering
 
-  I mentioned earlier that `ggplot2` is built using a theory of "layered graphics." In practice, this means we can "layer" multiple geoms! We do this by stringing together multiple geoms using a `+` between each layer.
+  As mentioned earlier,  `ggplot2` is built using a theory of "layered graphics." In practice, this means we can "layer" multiple geoms! This can be done by stringing together multiple geoms using a `+` between each layer.
   
-```{r}
+```{r, message = FALSE}
 ggplot(data = mpg) +
+  # A layer for the scatter plot 
   geom_point(mapping = aes(x = displ, y = hwy,
                             shape = drv, color = drv)) +
+  # A layer for adding a smoother on top of the scatter plot
   geom_smooth(mapping = aes(x = displ, y = hwy, color = drv),
-              show.legend = FALSE) ## Surpress this legend 
+              show.legend = FALSE) ## Suppress this legend because the scatter plot already generates one!
 ```
   
-  There is a lot of flexibile customization option available through `ggplot2` package. The code below shows an example of using aesthetics within the base plot which will be applied to every layer and usng geom specific aesthetics which will only be applied to that layer.
+  There is a lot of flexibility in the customization options available through the `ggplot2` package. The code below shows an example of using aesthetics within the base plot which will be applied to every layer in addition to using geom-specific aesthetics which will only be applied to that layer of the visualization.
   
-```{r}
-ggplot(data = mpg, 
-       aes(x = displ, y = hwy, color = drv) # 'Global' aesthetics
-       ) +
-  geom_point(aes(shape = drv) # 'Geom specific' aesthetic
-             ) +
+```{r, message = FALSE}
+ggplot(data = mpg, aes(x = displ, y = hwy, color = drv)) + # 'Global' Aesthetics
+  geom_point(aes(shape = drv)) + # 'Geom specific' aesthetic
   geom_smooth(aes(linetype = drv),
-              show.legend = FALSE) + # Surpress this legend 
+              show.legend = FALSE) + # Suppress this legend 
   facet_wrap(~ drv) + # Create subplots by a variable
-  labs(title = "Title", subtitle = 'sub', caption = 'caption',
-       y = "MPG on Highway", x = "Engine Size (L)") + # Custom Labels
+  labs(title = "main Title", subtitle = 'subtitle', caption = 'Insert Caption Here',
+       y = "MPG on Highway", x = "Engine Size (L)") + # Custom Labels using labs() 
   theme_bw() # New plot theme
 ```
 
@@ -165,27 +177,63 @@ ggplot(data = mpg,
 
 ```{r}
 ggplot(mpg, aes(x=class, y=hwy, fill = class)) + # 'Global' aes
-  geom_boxplot() + # make a boxplot
-  theme_minimal() # 'minimal' theme
+  geom_boxplot() + # make a boxplot 
+  theme_minimal() # Adjusting the x-axis group labels to be angled
 ```
 
 **Bar Charts**
 
 ```{r}
-ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aes
+ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aesthetics
   geom_col() + # make a boxplot
   theme_classic()
 ```
+ 
+ **1-Dimensional Plots**
+ 
+ It is also possible to generate very simple "1-Dimensional" plots with this package. We don't necessarily have to be comparing two variables to implement the `ggplot2` package. Let's see if we can visualize the *counts* of the different `class` sizes of vehicles in our dataset, for example: 
   
-### Extentions
+```{r}
+ggplot(data = mpg, aes(x = class, fill = class)) + # Only assigning an x-variable global aesthetic
+  geom_bar() # bar chart
+
+#Note: fill assigns a color to each condition, but doesn't otherwise alter the figure
+```
+
+  By only specifying the x-axis in the global aesthetics, and layering this with a bar chart, we get a frequency bar chart of the discrete variable `class` that is observed in our data set. 
+
+### `ggplot2` Exercises
+
+The supplemental exercises throughout the documentation will be developed using the *gapminder* data set as part of the `dslabs` package. The `dslabs` package is full of data sets and functionalities often used in the realm of data science and statistics for data analysis practice. The *gapminder* dataset contains health and income data from 184 countries between the years 1960 and 2016. Variables include `country`, `year`, `infant_mortality`,  `life_expectancy`, and many others. 
+
+```{r}
+#install.packages('dslabs')
+library(dslabs)
+head(gapminder)
+```
+1. To view the distribution of discrete variables like `continent`, try generating a bar chart that counts the number of observations of each `continent` in the dataset. Once you have this generated, try setting `fill = continent` within the global aesthetics & see how your visualization changes. 
+
+2. What is the distribution of `life_expectancy` over the whole data set? (Hint: use the `geom_density` layer, after mapping the x-variable to  `life_expectancy`)
+
+3. Can we group the previous exercise by continent? Try setting "fill = `continent`" after "x = `life_expectancy`". (Hint: `geom_density(alpha = 0.5)` makes the density distributions transparent). 
+
+4. How has `life_expectancy` changed over the years, `year`, by `continent`? Try fitting this first with a scatter plot, and then with a 'lm' smoother to see two different ways of visualizing this. (Hint: one is much simpler on the eye!)
+
+
+
+### Extentions of `ggplot2`
 
   Since R is an open source software with a very active community, many programmers have created plotting packages with custom geoms for plotting different data in the style of `ggplot2`. A few examples include `ggtree` for (phylogenetic) trees, `ggdendro` for generic dendrograms, `ggrepel` for labeling, and `ggnetwork` for network/graph data.
 
 * Charlie
 
+---
+
 ## The 'pipe' function
   
-  The *pipe* function, ``%>%`` is a key facet of the tidyverse from the `magrittr` package.
+  The *pipe* function, ``%>%``, is a key facet of the tidyverse from the `magrittr` package.
+
+\newline 
 
 > “No matter how complex and polished the individual operations are,
 > it is often the quality of the glue that most directly determines
@@ -193,7 +241,7 @@ ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aes
 > 
 > `r tufte::quote_footer('--- Hal Abelson')`
 
-  It works similarly to other in line functions such as ``%in%``, ``%*%``, or ``%%``. Except instead of performing a function on two objects, it takes the object on the left and moves it to the first argument of the function on the right.
+  The pipe works similarly to other in-line functions such as ``%in%``, ``%*%``, or ``%%``, except instead of performing a function on two objects, it takes the object on the left and moves it to the first argument of the function on the right.
   
 ```{r}
 ## Pipe into function
@@ -207,7 +255,7 @@ mtcars$mpg %>% plot(main = "MPG")
   
   The format for adding *geoms* to a `ggplot` was an early formulation of this idea of stringing multiple functions together through an external function.
   
-  The following are pairs of opperations that are all equivalent to one another. It is clear that operations with fewer steps don't benefit from piping objects, but multistep processes quickly become easier to read.
+  The following are pairs of operations that are all equivalent to one another. By looking at the same thing done three different ways, it is clear that operations with fewer steps don't benefit from piping objects, but multi-step processes quickly become easier to read & sift through with the implementation of a pipe.
   
 ```{r, eval = FALSE}
 ## Nested functions
@@ -235,14 +283,16 @@ mtcars %>%
   arrange(desc(cyl))
 ```
 
-  The last option is easier to read and more concise that either of the previous ones. No more nested functions mean you don't have to think and type *backwards*; you can think, type, and read in the same order using pipes. No more useless intermediate objects *data1, data2, data3,...*. We only have to name important steps or meaninfully different objects. In no small way this solves one of Phil Karlton's two hard problems in computer science:
+  The last option is easier to read and more concise than either of the previous ones. Forgoing the use of nested functions means you don't have to think and type *backwards*; you can think, type, and read in the same direction using pipes. (No more useless intermediate objects *data1, data2, data3,...*.) We only have to name important steps or meaningfully different objects. In no small way, this solves one of Phil Karlton's two hard problems in computer science:
+
+\newline
 
 > "There are only two hard things in computer science:
 > cache invalidation and naming things."
 >
 > `r tufte::quote_footer('--- Hal Abelson')` 
 
-  The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`. There really isn't any place you can't use the pipe function!
+  The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`, eliminating the need to redundantly specify your data frame. There really isn't any place you can't use the pipe function! Le pipe is le best!
   
 ```{r, eval = FALSE}
 mtcars %>% lm(mpg~cyl, data = .) 
@@ -250,7 +300,7 @@ mtcars %>% lm(mpg~cyl, data = .)
 
   There are multiple piping functions available in the `magrittr` package: `%<>%`, `%T>%`, `%$%`. We won't cover these, but they each have interesting functionality that can be very helpful.
 
-## Examples of base functions and tidyverse
+### Examples of base functions and tidyverse
 
   As we said earlier, there aren't many things you can do with the tidyverse that you can't do with `base` R. In fact, the tidyverse is mostly built out of `base` R (and a little `Rcpp`), like R is built out of C code.
   
@@ -281,22 +331,25 @@ head( mtcars[,1:2] )
 
 ##### Tidyverse Extraction
 
-  tidyverse provides the `pull` and `select` functions to replace the extractors from `base`. `pull` is used to extract a *single* column and simplify it to a vector, and `select` is used to extract *one or more* columns and maintain the data's original structure (i.e. data.frames remain data.frames). 
+  Tidyverse provides the `pull` and `select` functions to replace the extractors from `base`. `pull` is used to extract a *single* column and simplify it to a vector, and `select` is used to extract *one or more* columns and maintain the data's original structure (i.e. data.frames remain data.frames). 
 
 ```{r}
 ## First column as vector
 pull(mtcars, 1) # same as mtcars[,1]
+
 ## or with the 'pipe'
 mtcars %>% pull(1)
 mtcars %>% pull(mpg) # same as mtcars$mpg
 ```
   
-  Or we can maintain the data.frame structure using the `select` function from the *dplyr* package. This is equivalent to using the `drop = FALSE` argument of the `[` function.
+  Alternatively, we can maintain the data.frame structure using the `select` function from the *dplyr* package. This is equivalent to using the `drop = FALSE` argument of the `[]` function.
   
 ```{r, eval = F}
 select(mtcars, 1)
+
 ## or selecting multiple cols
 select(mtcars, 1,2,3)
+
 ## equivalently
 mtcars %>% select(1:3)
 
@@ -336,14 +389,15 @@ mtcars %>%
 subset(mtcars, disp >= mean(disp))
 ```
 
-  Note that this is one of the few times that base code uses 'none standard evaluation.' This means that it captures input as '*expressions*' to be evaluated within the function's environment, i.e. we don't need to use any *extraction* functions such as `[]` or `$` within the argument. The `subset` function would look like this: `subset(mtcars, mtcars$disp >= mean(mtcars$disp))` if it worked like most `base` functions.
+  Note that this is one of the few times that base code uses 'non-standard evaluation.' This means that it captures input as '*expressions*' to be evaluated within the function's environment, i.e. we don't need to use any *extraction* functions such as `[]` or `$` within the argument. The `subset` function would look like this: `subset(mtcars, mtcars$disp >= mean(mtcars$disp))` if it worked like most `base` functions.
 
 ##### Tidyverse
 
-  The tidyverse primarily operates by capturing arguments as *expressions*. The call this method of controlling the environment in which functions are executed *tidy evaluaiton*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
+  The tidyverse primarily operates by capturing arguments as *expressions*. They call this method of controlling the environment in which functions are executed *tidy evaluation*. This greatly simplifies most of the syntax required and is a major contribution to keeping code 'tidy.' 
 
 ```{r}
-## Multiple filtering options. 
+## Multiple filtering options 
+
 ## Equivalent of multiple '&' statements in subset
 mtcars %>% 
   filter(disp >= mean(disp),
@@ -377,19 +431,19 @@ mtcars %>%
   pull(cyl)
 ```
 
-### Adding columns
+### Adding columns to a Dataframe
 
-  Adding columns and performing opperations on existing columns is an essential part of data cleaning. Whether it is manipulating a variable or adding new columns that are functions of existing ones, it is important that the operations you perform are clear and reproducible. When someone inherits your code (or when you have to revisit it months later) there should be very little guessing as to what the code is doing. Commenting throughout is always the best practice, but we all know that our good commenting habbits come and go.
+  Adding columns and performing operations on existing columns is an essential part of data cleaning. Whether it is manipulating a variable or adding new columns that are functions of existing ones, it is important that the operations you perform are clear and reproducible. When someone inherits your code (or when you have to revisit it months later) there should be very little guessing as to what the code is doing. Commenting throughout is always the best practice, but we all know that our good commenting habits come and go.
   
 ##### Base
 
-  Adding columns to a dataset is easy and easy to read when the operation is small.
+  Adding columns to a dataset is simple and easy to read when the operation is small.
   
 ```{r}
 mtcars$log.mpg <- log(mtcars$mpg)
 ```
 
-  Here it easy to see how the need to name the data and select the variable with `$` over and over can make reatively simple opperations hard to read.
+  Here it easy to see how the need to name the data and select the variable with `$` over and over can make relatively simple operations hard to read/ and yields overly busy code chunks. One might even say, they weren't as tidy as they could be. 
 
 ```{r}
 mtcars$s.mpg <- (mtcars$mpg - mean(mtcars$mpg))/sd(mtcars$mpg)
@@ -407,17 +461,17 @@ mtcars %>% ## Adding a new column called s.mpg
   mutate(s.mpg = (mpg - mean(mpg)/sd(mpg)) ) 
 ```
 
-  We can also add in multiple columns in one mutate step. Not that we can create a variable (like *log.mpg*) and then make aditional variables based on this new variable. This is because most of the tidyverse works with something called 'lazy evaluation.'
+  We can also add in multiple columns in one mutate step. Note that we can create a variable (like *log.mpg*) and then make additional variables based on this new variable. This is because most of the tidyverse works with something called 'lazy evaluation.'
 
 ```{r, eval = FALSE}
 mtcars %>% 
   mutate(s.mpg = (mpg - mean(mpg)/sd(mpg)),
          log.mpg = log(mpg),
-         ls.mpg = (log.mpg - mean(log.mpg)/sd(log.mpg))
+         ls.mpg = (log.mpg - mean(log.mpg)/sd(log.mpg)) # Note we are using the previously created log.mpg variable to calculate a new variable
          )
 ```
   
-  Or we can get fancy and apply functions accross multiple columns at once. However, I think we start to lose some of the "readability" that is such a bonus from the tidyverse.
+  Alternatively, we can get super fancy and apply functions across multiple columns at once. However, I think we start to lose some of the "readability" that is such a bonus from the tidyverse when we do this. 
   
 ```{r}
 mtcars %>% 
@@ -446,11 +500,11 @@ tapply(mtcars$mpg, mtcars$cyl, mean)
 tapply(mtcars$mpg, mtcars$cyl, function(x) round(mean(x), 2))
 ```
 
-  As useful as this is, we can only group by one variable! What do we do when we want to group by multiple variables? In `base` you can use the `split` function with `interaction`, but the ability for multiple grouping variables is already coded up into the tidyverse.
+  As useful as this is, we can only group by one variable! What if we want to group by multiple variables? In `base` you can use the `split` function with `interaction`, but the ability for multiple grouping variables is already coded up into the tidyverse.
   
 ##### Tidyverse
 
-  We can use the `group_by` function to create lasting groups within our data.frame. We can use the useful `summarise` function to get nice summary statistics.
+  We can use the `group_by` function to create lasting groups within our data.frame. We can use the extremely useful `summarise` function to get really nicely calculated summary statistics.
 
 ```{r}
 ## summarise our data set by one group
@@ -479,7 +533,7 @@ mtcars %>%
 
 ### Split, Apply, Combine
 
-  The `mutate` and `summarise` functions are very convenient for doing many simple opperations that return either a single vector or value, respectively. But when we want to do larger operations and return more complex objects the tidyverse offers a family of very useful functions.
+  The `mutate` and `summarise` functions are very convenient for doing many simple operations that return either a single vector or value, respectively. However, when we want to do larger operations and return more complex objects, the tidyverse offers a family of very useful functions.
   
   The *split-apply-combine* family from the `plyr` package all take a data frame, an array, a list, or a matrix and return an array, a data frame, a list, or discard results (useful for plotting or saving output). For a complete description of these methods and the philosophy behind them, Wickham's [Split-Apply-Combine paper](https://vita.had.co.nz/papers/plyr.pdf) is a very easy read.
   
@@ -539,19 +593,37 @@ mpg %>%
 
 ```
 
+### Data Manipulation Exercises
+
+```{r}
+head(gapminder)
+```
+
+1. 
+
+
+
+
+
+
+
+
 * Shelby
+
+---
 
 ## Summary
 
-  Again, there is nothing you can do in the tidyverse that you can't do using base R functions. The exception being some of the visualizations from `ggplot` and its extensions. Despite this, people seem to love the tidyverse. Here is a post from [Quora](https://www.quora.com/Where-do-you-stand-on-Base-R-vs-the-tidyverse) where most people have nothing but great things to say. However, there are plenty of people who are against this new coding style, like in this blog post that sparked some controversy: [Why I don't use the tidyverse](https://blog.ephorie.de/why-i-dont-use-the-tidyverse). Some make the claim that it is harder (or at least no easier) to teach the tidyverse than base R: [Why it is hard to teach the tidyverse](https://github.com/matloff/TidyverseSkeptic). Here I tend to agree. The tidyverse is only 'easier' to understand if you already understand R.
+  Again, there is nothing tidyverse does that you can't do using base R functions (with the exception being some of the visualizations from `ggplot` and its extensions). Despite this, people seem to love the tidyverse. Here is a post from [Quora](https://www.quora.com/Where-do-you-stand-on-Base-R-vs-the-tidyverse) where most people have nothing but great things to say. 
+  However, there are plenty of people who are against this new coding style, like in this blog post that sparked some controversy: [Why I don't use the tidyverse](https://blog.ephorie.de/why-i-dont-use-the-tidyverse). Some make the claim that it is harder (or at least no easier) to teach the tidyverse than base R: [Why it is hard to teach the tidyverse](https://github.com/matloff/TidyverseSkeptic). Here I tend to agree. The tidyverse is only really 'easier' to understand if you already understand R.
 
-  At worst, the tidyverse seems like a reworking of `base` R functions so that they don't have the small things from `base` that annoyed Hadley (e.g. `tibble`). At best, it is large improvements over `base` functions like `ggplot` and `%>%`.
+  At the worst, the tidyverse seems like a reworking of `base` R functions so that they don't have the small things from `base` that annoyed Hadley (e.g. `tibble`). At best, it is large improvements over `base` functions with the implementation of things like `ggplot` and `%>%`.
 
 ### Advantages
 
-1. Excellent plotting functions
+1. Excellent plotting functions (ggplot is beautiful)
 2. Easier for humans to read and arguably simpler to write
-    + *pipe* functions allow us to code how we talk and think
+    + the *pipe* function allow us to code how we talk and think
 
 ### Disadvantages
 
@@ -561,7 +633,8 @@ mpg %>%
 2. "Rectangular" data structure isn't adopted by everyone. 
     + Bioconductor requires S4 objects
 
-## What to look at to keep learning the tidyverse
+---
+## Want to keep learning about the tidyverse?
 
 * Textbook: [R for Data Science](https://r4ds.had.co.nz/)
 
@@ -572,4 +645,6 @@ mpg %>%
 * How to program with tidyverse:
 [Programming with dplyr](https://dplyr.tidyverse.org/articles/programming.html)
   + I don't recommend programming with the tidyverse. Since it is 'always improving' it is always changing. Your programming could become invalid with a new tidyverse update, e.g. `spread` and `gather` are no longer 'supported' from the tidyverse.
+  
+* A talk from David Robinson, Chief Data Scientist at DataCamp, at the 2018 RStudio Conference about early teaching strategies in Data Science: [Teaching the Tidyverse to beginners](https://rstudio.com/resources/rstudioconf-2018/teach-the-tidyverse-to-beginners/)
 
