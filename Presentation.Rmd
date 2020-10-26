@@ -615,7 +615,7 @@ head(gapminder)
 ## Summary
 
   Again, there is nothing tidyverse does that you can't do using base R functions (with the exception being some of the visualizations from `ggplot` and its extensions). Despite this, people seem to love the tidyverse. Here is a post from [Quora](https://www.quora.com/Where-do-you-stand-on-Base-R-vs-the-tidyverse) where most people have nothing but great things to say. 
-  However, there are plenty of people who are against this new coding style, like in this blog post that sparked some controversy: [Why I don't use the tidyverse](https://blog.ephorie.de/why-i-dont-use-the-tidyverse). Some make the claim that it is harder (or at least no easier) to teach the tidyverse than base R: [Why it is hard to teach the tidyverse](https://github.com/matloff/TidyverseSkeptic). Here I tend to agree. The tidyverse is only really 'easier' to understand if you already understand R.
+  However, there are plenty of people who are against this new coding style, like in this blog post that sparked some controversy: [Why I don't use the tidyverse](https://blog.ephorie.de/why-i-dont-use-the-tidyverse). Some make the claim that it is harder (or at least no easier) to teach the tidyverse than base R: [Why it is hard to teach the tidyverse](https://github.com/matloff/TidyverseSkeptic). Here I tend to agree. The tidyverse is only 'easier' to understand if you already understand R.
 
   At the worst, the tidyverse seems like a reworking of `base` R functions so that they don't have the small things from `base` that annoyed Hadley (e.g. `tibble`). At best, it is large improvements over `base` functions with the implementation of things like `ggplot` and `%>%`.
 
