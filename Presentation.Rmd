@@ -2,11 +2,18 @@
 title: "Intro to Tidyverse"
 author: "Charlie Carpenter & Shelby Smith"
 output: 
-  html_document:
-    toc: true
-    toc_float: true
-    theme: spacelab
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
+
+```{r, include = FALSE}
+# html_document:
+#     toc: true
+#     toc_float: true
+#     theme: spacelab
+```
+
 
 * Charlie
 
@@ -66,7 +73,7 @@ mtcars %>%
 
 ## Plotting with `ggplot2`
 
-  One of the first entries in the tidyverse was the `ggplot2` package. There are many methods of creating plots within R, but `ggplot2` claims to be "one of the most elegant and most versatile" packages. I tend to whole-heartedly agree with this claim :). 
+  One of the first entries in the tidyverse was the `ggplot2` package. There are many methods of creating plots within R, but `ggplot2` claims to be "one of the most elegant and most versatile" packages. I whole-heartedly agree with this claim :). 
   
  The `ggplot2` packages works on the principle of "layered graphics," in which different elements of data visualizations are layered on top of one another to tell a story greater than the sum of their individual parts. If you're interested in data visualization, Wickham's paper on the [theory of layered graphics](http://vita.had.co.nz/papers/layered-grammar.pdf) might be of interest to you!
   
@@ -274,7 +281,10 @@ arrange(
 filts <- filter(mtcars, mpg > 15)
 grpby <- group_by(filts, cyl)
 sumry <- summarise(grpby)
+arang <- arrange(sumry, desc(cyl))
+```
 
+```{r}
 ## Piping for clean code
 mtcars %>% 
   filter(mpg > 15) %>% 
@@ -290,7 +300,7 @@ mtcars %>%
 > "There are only two hard things in computer science:
 > cache invalidation and naming things."
 >
-> `r tufte::quote_footer('--- Hal Abelson')` 
+> `r tufte::quote_footer('--- Phil Karlton')` 
 
   The *pipe* is also able to place the left hand object anywhere in the right hand function you specify with a `.`, eliminating the need to redundantly specify your data frame. There really isn't any place you can't use the pipe function! Le pipe is le best!
   
@@ -300,7 +310,7 @@ mtcars %>% lm(mpg~cyl, data = .)
 
   There are multiple piping functions available in the `magrittr` package: `%<>%`, `%T>%`, `%$%`. We won't cover these, but they each have interesting functionality that can be very helpful.
 
-### Examples of base functions and tidyverse
+## Data Manipulation
 
   As we said earlier, there aren't many things you can do with the tidyverse that you can't do with `base` R. In fact, the tidyverse is mostly built out of `base` R (and a little `Rcpp`), like R is built out of C code.
   
@@ -326,7 +336,7 @@ getElement(mtcars, 'mpg')
 ```{r}
 head( mtcars[,1, drop = FALSE] )
 
-head( mtcars[,1:2] )
+head( mtcars[,1:2] ) ## or mtcars[, c('mpg', 'cyl')]
 ```
 
 ##### Tidyverse Extraction
@@ -598,15 +608,6 @@ mpg %>%
 ```{r}
 head(gapminder)
 ```
-
-1. 
-
-
-
-
-
-
-
 
 * Shelby
 
