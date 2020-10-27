@@ -597,15 +597,45 @@ mpg %>%
 
 ```{r}
 head(gapminder)
+
 ```
 
-1. 
+1. Extract data from the *gapminder* dataset that contains the following information:
+- Country: Belize
+- Year: 1990
+- Life_expectancy
+- Population
+- Continent
 
+2. Maybe we're interested in calculating the gross domestic product per capita. Use the mutate function & write an expression to calculate this, and create a new column in the dataframe. (Hint: gdp / population)
 
+3. Build on your code from question 2, and find out the top 3 GDP per capita in each continent
+(Hint: use %>% head(3) at the end to only select the top 3). 
 
+### Challenge Exercises using the NYC Flights Data
 
+  The R package `nycflights13` contains data about all flights that departed one of the three New York City airports (JFK, LGA, and EWR) in 2013. You can probably guess, this is no small dataset. This first code chunk simply performs an inner join on two datasets in order to match the data on the `carrier` column. The original flights dataset only  has the two letter 'key' for each flight carrier; merging these together allows us to see the Airline names as well. 
+  
+```{r}
+#install.packages('nycflights13')
+library(nycflights13)
+data(flights)
 
+data(airlines)
 
+flights_carrier <- flights %>%
+  inner_join(airlines, by=c('carrier'='carrier'))
+
+glimpse(flights_carrier)
+```
+
+1. Using the `flights_carrier` dataset, create a new data set, `flights2` that contains the carrier name, year, month, day, departure delay, arrival delay, origin airport, destination airport, and flight number.
+
+2. How many unique flight routes does American Airlines Inc. run departing from the New York area? (Hint: use the n_distinct() command within `summarise`)
+
+3. How many unique flight routes does American Airlines Inc. run from each of the three area airports?
+
+4. What is the average departure delay of a American Airlines Inc. flight leaving JFK? LGA? EWR? What about leaving any New York area airport?
 
 
 * Shelby
@@ -647,4 +677,6 @@ head(gapminder)
   + I don't recommend programming with the tidyverse. Since it is 'always improving' it is always changing. Your programming could become invalid with a new tidyverse update, e.g. `spread` and `gather` are no longer 'supported' from the tidyverse.
   
 * A talk from David Robinson, Chief Data Scientist at DataCamp, at the 2018 RStudio Conference about early teaching strategies in Data Science: [Teaching the Tidyverse to beginners](https://rstudio.com/resources/rstudioconf-2018/teach-the-tidyverse-to-beginners/)
+
+* Interested in learning more about `ggplot2`? Here are the [Top 50 ggplot2 Visualizations - The Master List (With Full R Code)](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
 

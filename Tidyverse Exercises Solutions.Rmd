@@ -50,3 +50,93 @@ ggplot(data = gapminder) +
   geom_smooth(mapping = aes(x = year, y = life_expectancy, color = continent), method = 'lm')
 ```
 
+## Data Manipulation Exercises
+
+1. Extract data from the *gapminder* dataset that contains the following information:
+- Country: Belize
+- Year: 1990
+- Life_expectancy
+- Population
+- Continent
+
+
+```{r}
+gapminder %>% filter(country == c('Belize')) %>%
+  filter(year == 1990) %>%
+  select(country, year, life_expectancy, population, continent)
+
+```
+
+2. Maybe we're interested in calculating the gross domestic product per capita. Use the mutate function & write an expression to calculate this, and create a new column in the dataframe. (Hint: gdp / population)
+```{r}
+gapminder %>% mutate(gdp_percap = gdp / population) %>%
+  select(country, year, gdp, population, gdp_percap)
+```
+
+3. Build on your code from question 2, and find out the top 3 GDP per capita in each continent
+(Hint: use %>% head(3) at the end to only select the top 3). 
+```{r}
+# Descending gdp_percap for Africa
+gapminder %>% mutate(gdp_percap = gdp / population) %>%
+  filter(continent == 'Africa') %>%
+  arrange(desc(gdp_percap)) %>% 
+  select(continent, country, year, population, gdp, gdp_percap) %>% 
+  head(3)
+
+
+gapminder %>% mutate(gdp_percap = gdp / population) %>%
+  filter(continent == 'Europe') %>%
+  arrange(desc(gdp_percap)) %>% 
+  select(continent, country, year, population, gdp, gdp_percap) %>% 
+  head(3)
+
+# To be continued for all countries!
+```
+
+### Challenge Exercises using the NYC Flights Data
+  
+```{r}
+#install.packages('nycflights13')
+library(nycflights13)
+data(flights)
+
+data(airlines)
+
+flights_carrier <- flights %>%
+  inner_join(airlines, by=c('carrier'='carrier'))
+
+glimpse(flights_carrier)
+```
+
+1. Using the `flights_carrier` dataset, create a new data set, `flights2` that contains the carrier name, year, month, day, departure delay, arrival delay, origin airport, destination airport, and flight number.
+
+```{r}
+flights2 <- select(flights_carrier, carrier, year, month, day, dep_delay, arr_delay, origin, dest, flight)
+head(flights2)
+```
+
+
+2. How many unique flight routes does American Airlines Inc. run departing from the New York area? (Hint: use the n_distinct() command within `summarise`)
+
+```{r}
+flights2 %>% filter(carrier == 'AA') %>% summarize(n_distinct(flight))
+```
+
+
+3. How many unique flight routes does American Airlines Inc. run from each of the three area airports?
+
+```{r, message = FALSE}
+flights2 %>% filter(carrier == 'AA') %>% group_by(origin) %>% summarize(n_distinct(flight))
+```
+
+
+4. What is the average departure delay of a American Airlines Inc. flight leaving JFK? LGA? EWR? What about leaving any New York area airport?
+
+```{r, message = FALSE}
+# Mean for each origin
+flights2 %>% filter(carrier == 'UA') %>% filter(dep_delay != 'NA') %>% group_by(origin) %>% summarize(mean=mean(dep_delay))
+
+#Mean for any New York airport
+flights2 %>% filter(carrier == 'UA') %>% filter(dep_delay != 'NA') %>% summarize(mean=mean(dep_delay))
+```
+
