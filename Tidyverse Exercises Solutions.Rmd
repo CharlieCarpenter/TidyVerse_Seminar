@@ -75,6 +75,7 @@ gapminder %>% mutate(gdp_percap = gdp / population) %>%
 
 3. Build on your code from question 2, and find out the top 3 GDP per capita in each continent
 (Hint: use %>% head(3) at the end to only select the top 3). 
+
 ```{r}
 # Descending gdp_percap for Africa
 gapminder %>% mutate(gdp_percap = gdp / population) %>%
@@ -114,7 +115,6 @@ glimpse(flights_carrier)
 flights2 <- select(flights_carrier, carrier, year, month, day, dep_delay, arr_delay, origin, dest, flight)
 head(flights2)
 ```
-
 
 2. How many unique flight routes does American Airlines Inc. run departing from the New York area? (Hint: use the n_distinct() command within `summarise`)
 

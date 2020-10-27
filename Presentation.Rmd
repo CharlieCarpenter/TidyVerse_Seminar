@@ -131,7 +131,7 @@ ggplot(data = mpg) +
   geom_smooth(mapping = aes(x = displ, y = hwy, color = drv)) 
 ```
 
-Above, we can see th specification of `geom_smooth` as opposed to `geom_point` alters the plotting layer from the previously seen scatter plot to a smoothing line instead. 
+Above, we can see the specification of `geom_smooth` as opposed to `geom_point` alters the plotting layer from the previously seen scatter plot to a smoothing line instead. 
 
 
 Here, we have adjusted the smoothing method to 'lm' instead of a 'loess' smoother and can see the linear relationships of each category within the `drv` variable. 
