@@ -182,15 +182,17 @@ ggplot(data = mpg, aes(x = displ, y = hwy, color = drv)) + # 'Global' Aesthetics
 ```{r}
 ggplot(mpg, aes(x=class, y=hwy, fill = class)) + # 'Global' aes
   geom_boxplot() + # make a boxplot 
-  theme_minimal() # Adjusting the x-axis group labels to be angled
+  theme_minimal() # New theme!
+
+#Note: fill assigns a color to each condition, but doesn't otherwise alter the figure
 ```
 
 **Bar Charts**
 
 ```{r}
 ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aesthetics
-  geom_col() + # make a boxplot
-  theme_classic()
+  geom_col() + # make a column chart
+  theme_classic() # New theme!
 ```
  
  **1-Dimensional Plots**
@@ -201,7 +203,7 @@ ggplot(mpg, aes(x=class, y=hwy, fill = drv)) + # 'Global' aesthetics
 ggplot(data = mpg, aes(x = class, fill = class)) + # Only assigning an x-variable global aesthetic
   geom_bar() # bar chart
 
-#Note: fill assigns a color to each condition, but doesn't otherwise alter the figure
+
 ```
 
   By only specifying the x-axis in the global aesthetics, and layering this with a bar chart, we get a frequency bar chart of the discrete variable `class` that is observed in our data set. 
