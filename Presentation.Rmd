@@ -8,19 +8,16 @@ output:
 ---
 
 ```{r, include = FALSE}
-# html_document:
-#     toc: true
-#     toc_float: true
-#     theme: spacelab
+  # html_document:
+  #   toc: true
+  #   toc_float: true
+  #   theme: spacelab
 ```
-
-
-* Charlie
 
 ## Introduction
 
 ```{r, message=FALSE}
-# install.packages('tidyverse'); install.packages('magrittr') 
+# install.packages('tidyverse')
 library(tidyverse); library(magrittr)
 ```
 
@@ -280,7 +277,7 @@ arrange(
 ## Multiple Names
 filts <- filter(mtcars, mpg > 15)
 grpby <- group_by(filts, cyl)
-sumry <- summarise(grpby)
+sumry <- summarise(grpby, .groups = 'keep')
 arang <- arrange(sumry, desc(cyl))
 ```
 
@@ -610,8 +607,6 @@ head(gapminder)
 
 ```
 
-<<<<<<< HEAD
-=======
 1. Extract data from the *gapminder* dataset that contains the following information:
 - Country: Belize
 - Year: 1990
@@ -649,8 +644,6 @@ glimpse(flights_carrier)
 
 4. What is the average departure delay of a American Airlines Inc. flight leaving JFK? LGA? EWR? What about leaving any New York area airport?
 
-
->>>>>>> 3964a3b58eab120753bd75bb912a5a75a700eae5
 * Shelby
 
 ---
@@ -685,11 +678,13 @@ glimpse(flights_carrier)
 
 * Textbook on coding style: [R Style Guide](https://style.tidyverse.org/)
 
+* Data manipulation with dplyr: [`dplyr` cheatsheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)
+
 * How to program with tidyverse:
 [Programming with dplyr](https://dplyr.tidyverse.org/articles/programming.html)
   + I don't recommend programming with the tidyverse. Since it is 'always improving' it is always changing. Your programming could become invalid with a new tidyverse update, e.g. `spread` and `gather` are no longer 'supported' from the tidyverse.
   
 * A talk from David Robinson, Chief Data Scientist at DataCamp, at the 2018 RStudio Conference about early teaching strategies in Data Science: [Teaching the Tidyverse to beginners](https://rstudio.com/resources/rstudioconf-2018/teach-the-tidyverse-to-beginners/)
 
-* Interested in learning more about `ggplot2`? Here are the [Top 50 ggplot2 Visualizations - The Master List (With Full R Code)](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
+* Interested in learning more about `ggplot2`? Here are the [Top 50 ggplot2 Visualizations - The Master List (With Full R Code)](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html) and the [`ggplot2` cheatsheet](https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf).
 

@@ -2,11 +2,16 @@
 title: "Tidyverse Presentation Exercises Solutions"
 author: "Shelby Smith"
 date: "10/25/2020"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: spacelab
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 ## `ggplot2` Exercises
@@ -70,7 +75,8 @@ gapminder %>% filter(country == c('Belize')) %>%
 2. Maybe we're interested in calculating the gross domestic product per capita. Use the mutate function & write an expression to calculate this, and create a new column in the dataframe. (Hint: gdp / population)
 ```{r}
 gapminder %>% mutate(gdp_percap = gdp / population) %>%
-  select(country, year, gdp, population, gdp_percap)
+  select(country, year, gdp, population, gdp_percap) %>% 
+  head
 ```
 
 3. Build on your code from question 2, and find out the top 3 GDP per capita in each continent
